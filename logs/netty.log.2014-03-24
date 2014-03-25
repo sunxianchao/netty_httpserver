@@ -1,0 +1,15 @@
+2014-03-24 10:38:18 [ main:6988 ] - [ INFO ] Server started, port:8080
+2014-03-24 10:39:33 [ main:233 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:04:30 [ main:256 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:06:05 [ main:226 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:23:06 [ main:220 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:23:56 [ main:217 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:24:43 [ main:225 ] - [ INFO ] Server started, port:8080
+2014-03-24 14:25:29 [ main:224 ] - [ INFO ] Server started, port:8080
+2014-03-24 15:54:20 [ main:219 ] - [ INFO ] Server started, port:8080
+2014-03-24 15:55:31 [ nioEventLoopGroup-3-1:70854 ] - [ ERROR ] resource /hello/get/223 not found.
+2014-03-24 16:17:45 [ main:226 ] - [ INFO ] Server started, port:8080
+2014-03-24 16:18:45 [ main:227 ] - [ INFO ] Server started, port:8080
+2014-03-24 16:19:43 [ main:220 ] - [ INFO ] Server started, port:8080
+2014-03-24 17:24:20 [ main:225 ] - [ INFO ] Server started, port:8080
+2014-03-24 17:26:18 [ main:226 ] - [ INFO ] Server started, port:8080
