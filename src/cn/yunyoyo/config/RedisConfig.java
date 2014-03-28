@@ -6,7 +6,7 @@ import cn.yunyoyo.service.RedisService;
 import cn.yunyoyo.util.PropertiesUtil;
 
 /**
- * redis 配置信息类
+ * redis 配置信息类,已通过spring 设置
  * @author Sunxc
  *
  */
@@ -20,7 +20,7 @@ public class RedisConfig {
      * 获取jedispoolconfig对象
      * @return
      */
-    public static JedisPoolConfig getJedisPoolConfig(){
+    private static JedisPoolConfig getJedisPoolConfig(){
         JedisPoolConfig config = new JedisPoolConfig();
         String maxIdle=PropertiesUtil.getValue("redis.pool.maxIdle");
         String maxActive=PropertiesUtil.getValue("redis.pool.maxActive");
@@ -42,6 +42,7 @@ public class RedisConfig {
         return config;
     }
     
+    @Deprecated
     public static JedisPool getJedisPool(){
         JedisPoolConfig config=getJedisPoolConfig();
         String host=PropertiesUtil.getValue("redis.pool.host");

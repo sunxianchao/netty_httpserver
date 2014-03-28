@@ -3,9 +3,11 @@ package cn.yunyoyo.util;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.util.internal.StringUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +27,17 @@ public class RequestUtil {
         return "XMLHttpRequest".equalsIgnoreCase(request.headers().get("X-Requested-With"));
     }
 
+    /**
+     * restfull 风格url从中提前参数
+     * @param startPrefix
+     * @param uri
+     * @return
+     */
+    public static String[] getParameterFromUri(String uri) {
+        uri=uri.replaceAll("\\?.*", "").replaceFirst("/", "");
+        return StringUtil.split(uri.trim(), '/');
+    }
+    
     /**
      * 取参数的Long 值
      * @param request
@@ -350,7 +363,6 @@ public class RequestUtil {
         return request.getRemoteAddr();
     }*/
 
-    @SuppressWarnings("unchecked")
     public static void printAllHeaders(HttpRequest request) {
         HttpHeaders headers=request.headers();
         Iterator<String> it=headers.names().iterator();
@@ -368,5 +380,31 @@ public class RequestUtil {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.getUri());
         Map<String, List<String>> paramsMap=queryStringDecoder.parameters();
         return paramsMap;
+    }
+    
+    public static String getSignData(HttpRequest request) {
+        Map<String, List<String>> params = getRequestMap(request);
+        StringBuilder content=new StringBuilder();
+        // 按照key做排序
+        List<String> keys=new ArrayList<String>(params.keySet());
+        Collections.sort(keys);
+        for(int i=0; i < keys.size(); i++) {
+            String key=keys.get(i);
+            if("sign".equals(key)) {
+                continue;
+            }
+            List<String> values=params.get(key);
+            if(null == values) {
+                continue;
+            }
+            for(String value: values) {
+                if(value != null) {
+                    content.append((i == 0 ? "" : "&") + key + "=" + value);
+                } else {
+                    content.append((i == 0 ? "" : "&") + key + "=");
+                }
+            }
+        }
+        return content.toString();
     }
 }

@@ -1,6 +1,5 @@
 package cn.yunyoyo;
 
-import cn.yunyoyo.service.RedisService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -14,18 +13,12 @@ public class NettyHttpServer {
 
     static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyHttpServer.class);
     private final int port;
-    private RedisService redisService;
-    
-    public NettyHttpServer(int port, RedisService redisService) {
-        this.port = port;
-        this.redisService = redisService;
-    }
     
     public NettyHttpServer(int port){
         this.port = port;
     }
 
-    public void run() throws Exception {
+    public void start() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -52,7 +45,7 @@ public class NettyHttpServer {
         } else {
             port = 8080;
         }
-        new NettyHttpServer(port).run();
+        new NettyHttpServer(port).start();
 
     }
 }

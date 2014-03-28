@@ -8,4 +8,6 @@ public interface RedisQueueService {
     public void putMsgToQueue(String queue, String msg);
     
     public List<String> getMsgFromQueue(String queue);
+    
+    public long msgQueueSize(String queue);
 }

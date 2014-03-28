@@ -4,37 +4,44 @@ import io.netty.handler.codec.http.HttpRequest;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
 
 import cn.yunyoyo.config.RedisConfig;
 import cn.yunyoyo.service.RedisQueueService;
 import cn.yunyoyo.service.RedisService;
 import cn.yunyoyo.util.RequestUtil;
 
-
+@Controller("helloWorldHandler")
+@Scope("prototype")
 public class HelloWorldHandler extends SimpleHttpResponseHandler implements RedisQueueService{
 
-    //后期通过spring ioc注入
-    private RedisService redisService=new RedisService();
+    @Autowired
+    private RedisService redisService;
     
     @Override
-    protected String responseMessage(HttpRequest request) {
+    protected String httpResponseMessage(HttpRequest request) {
+        System.out.println(redisService);
         StringBuilder sb=new StringBuilder();
         String uri=request.getUri();
-        String[] restUri=getParameterFromUri(uri);
+        String queueName=getQueueNameFromUri(uri);
+        String[] restUri=RequestUtil.getParameterFromUri(uri);
         if(uri.startsWith("/put/")){
             String msg=RequestUtil.getString(request, "msg");
-            String queueName=restUri[1];
             putMsgToQueue(queueName, msg);
             return "ok";
         }else if(uri.startsWith("/get/")){
-            String queueName=restUri[1];
             List<String> list=getMsgFromQueue(queueName);
             StringBuilder msg=new StringBuilder();
             for(String str:list){
                 msg.append(str);
+                msg.append("<br/>");
             }
             return msg.toString();
+        }else if(uri.startsWith("/count/")){
+            return String.valueOf(msgQueueSize(queueName));
         }else{
             for(int i=0;i<restUri.length;i++){
                 sb.append(restUri[i]);
@@ -53,19 +60,29 @@ public class HelloWorldHandler extends SimpleHttpResponseHandler implements Redi
     public void putMsgToQueue(String queue, String msg){
         try {
             redisService.rpush(RedisConfig.QUEUE_KEY_PREFIX+queue, msg);
-        } catch(TimeoutException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
     
     public List<String> getMsgFromQueue(String queue){
-//        byte[] listKey=RedisService.serializable(RedisConfig.QUEUE_KEY_PREFIX+queue);
         try {
-            return redisService.blpop(RedisConfig.TIMEOUT, RedisConfig.QUEUE_KEY_PREFIX+queue);
+            String key=RedisConfig.QUEUE_KEY_PREFIX+queue;
+            return redisService.lrange(key, 0, -1);
         } catch(Exception e) {
            e.printStackTrace();
         }
         return null;
+    }
+    
+    public long msgQueueSize(String queue){
+        try {
+            String key=RedisConfig.QUEUE_KEY_PREFIX+queue;
+            return redisService.llen(key);
+        } catch(Exception e) {
+           e.printStackTrace();
+        }
+        return 0;
     }
     
 }

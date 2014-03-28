@@ -6,7 +6,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import cn.yunyoyo.config.URLConfig;
 import cn.yunyoyo.handler.router.RouterHandler;
 
 
@@ -15,11 +14,10 @@ public class NettyHttpServerInitializer extends ChannelInitializer<SocketChannel
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
-        URLConfig urls = new URLConfig();
         pipeline.addLast("decoder", new HttpRequestDecoder());
         pipeline.addLast("encoder", new HttpResponseEncoder());
         pipeline.addLast("timeout", new ReadTimeoutHandler(30));
-        pipeline.addLast("handler", new RouterHandler(urls.getRoutes()));
+        pipeline.addLast("handler", new RouterHandler());
     }
     
 }

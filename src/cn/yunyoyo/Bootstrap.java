@@ -1,15 +1,19 @@
 package cn.yunyoyo;
 
-import cn.yunyoyo.config.RedisConfig;
-import cn.yunyoyo.util.PropertiesUtil;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import cn.yunyoyo.util.RedisMonitorThread;
+import cn.yunyoyo.util.SpringBeanUtil;
 
 public class Bootstrap {
-
-    public static void main(String[] args) throws NumberFormatException, Exception {
-        String port=PropertiesUtil.getValue("netty.port");
-        RedisConfig.startReids();
-        new NettyHttpServer(Integer.parseInt(port)).run();
+    
+    public static void main(String[] args) throws Exception {
+        new ClassPathXmlApplicationContext("classpath:application-context.xml");
+        NettyHttpServer httpServer=SpringBeanUtil.getBean("nettyHttpServer", NettyHttpServer.class);
+        RedisMonitorThread monitorThread=SpringBeanUtil.getBean("redisMonitorThread", RedisMonitorThread.class);
+        monitorThread.start();
+        httpServer.start();
+        
     }
 
 }

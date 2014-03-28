@@ -60,7 +60,7 @@ public class JsonUtil {
         try {
             if(json != null) {
                 mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-                t=(T)mapper.readValue(json, tr);
+                t=mapper.readValue(json, tr);
             }
         } catch(JsonParseException e) {
             e.printStackTrace();

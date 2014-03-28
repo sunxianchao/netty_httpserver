@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd 
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		
+  	<context:component-scan base-package="cn.yunyoyo.*"  use-default-filters="false">
+  		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+  		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+    </context:component-scan>
+	<context:annotation-config />
+	<context:property-placeholder location="config.properties" ignore-unresolvable="true" />
+	<!-- POOL配置 -->   
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">   
+	    <property name="maxActive"  value="${redis.pool.maxActive}" />   
+	    <property name="maxIdle" value="${redis.pool.maxIdle}" />   
+	    <property name="maxWait" value="10000" />   
+	    <property name="testOnBorrow"  value="true"/>   
+	</bean>   
+	      
+	<!-- jedis shard信息配置 -->   
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool" depends-on="jedisPoolConfig">   
+	    <constructor-arg ref="jedisPoolConfig" />   
+	    <constructor-arg value="${redis.pool.host}" />   
+	    <constructor-arg value="${redis.pool.port}" />   
+	</bean>   
+	      
+	<!-- jedis shard pool配置 -->   
+	<bean id="redisService" class="cn.yunyoyo.service.RedisService" depends-on="jedisPool">   
+	     <property name="jedisPool" ref="jedisPool"></property>
+	     <property name="serverName" value="${redis.pool.name}"></property>
+	</bean> 
+	<bean id="nettyHttpServer" class="cn.yunyoyo.NettyHttpServer"> 
+	    <constructor-arg value="${netty.port}" />
+	</bean>
+</beans>

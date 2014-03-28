@@ -28,81 +28,19 @@ public class RedisService {
 
     static final InternalLogger logger=InternalLoggerFactory.getInstance(RedisService.class);
 
-    private static JedisPool jedisPool;
+    private JedisPool jedisPool;
 
     public static final String NOT_FOUND="nil";
 
     private String serverName;
 
-    private boolean ALIVE=true;
-
-    private boolean EXCEPTION_FALG=false;
-
-    public class MonitorThread extends Thread {
-
-        public void run() {
-            int sleepTime=30000;
-            int baseSleepTime=1000;
-            logger.info("redis 服务启动...");
-            while(true) {
-                try {
-                    // 30秒执行监听
-                    int n=sleepTime / baseSleepTime;
-                    for(int i=0; i < n; i++) {
-                        if(EXCEPTION_FALG) {// 检查到异常，立即进行检测处理
-                            break;
-                        }
-                        Thread.sleep(baseSleepTime);
-                    }
-                    // 连续做3次连接获取
-                    int errorTimes=0;
-                    for(int i=0; i < 3; i++) {
-                        try {
-                            Jedis jedis=jedisPool.getResource();
-                            if(jedis == null) {
-                                errorTimes++;
-                                continue;
-                            }
-                            releaseJedisInstance(jedis);
-                            break;
-                        } catch(Exception e) {
-                            errorTimes++;
-                            continue;
-                        }
-                    }
-                    if(errorTimes == 3) {// 3次全部出错，表示服务器出现问题
-                        ALIVE=false;
-                        logger.error("redis[" + serverName + "] 服务器连接不上！ ！ ！");
-                        // 修改休眠时间为5秒，尽快恢复服务
-                        sleepTime=5000;
-                    } else {
-                        if(ALIVE == false) {
-                            ALIVE=true;
-                            // 修改休眠时间为30秒，尽快恢复服务
-                            sleepTime=30000;
-                            logger.info("redis[" + serverName + "] 服务器恢复正常！ ！ ！");
-                        }
-                        EXCEPTION_FALG=false;
-                        Jedis jedis=jedisPool.getResource();
-                        logger.info("redis[" + serverName + "] 当前记录数：" + jedis.dbSize());
-                        releaseJedisInstance(jedis);
-                    }
-                } catch(Exception e) {
-                }
-            }
-        }
-    }
-
     public void setJedisPool(JedisPool jedisPool) {
         this.jedisPool=jedisPool;
-        new MonitorThread().start();
     }
 
     public Jedis getJedis() throws TimeoutException {
         Jedis jedis=null;
-        if(ALIVE) {// 当前状态为活跃才获取连接，否则直接返回null
-            jedis=jedisPool.getResource();
-        }
+        jedis=jedisPool.getResource();
         return jedis;
 
     }
@@ -113,14 +51,6 @@ public class RedisService {
 
     public void setServerName(String serverName) {
         this.serverName=serverName;
-    }
-
-    /**
-     * 判断服务器是否活动
-     * @return
-     */
-    public boolean isServerAlive() {
-        return ALIVE;
     }
 
     public void releaseJedisInstance(Jedis jedis) {

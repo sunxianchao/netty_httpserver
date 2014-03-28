@@ -2,9 +2,6 @@ package cn.yunyoyo.config;
 
 import java.util.LinkedHashMap;
 
-import cn.yunyoyo.handler.HelloWorldHandler;
-import cn.yunyoyo.handler.NotFoundHandler;
-
 /**
  * 初始化url资源，如果有更新手动添加
  * url 匹配支持ant风格的url匹配规则
@@ -12,18 +9,21 @@ import cn.yunyoyo.handler.NotFoundHandler;
  */
 public class URLConfig {
 
-    final String hello="/**/hello";
+    static final String commonurl="/common/**/hello";// 以common开头的url不需要做验证
     
-    final String favicon_ico="/favicon.ico";
+    static final String hello="/**/hello*";
+    
+    // 应用收集兼容老的url 使用根路径处理
+    static final String apps="/**/app";
+    
+    final static LinkedHashMap<String, String> routes=new LinkedHashMap<String, String>();
 
-    final LinkedHashMap<String, Class<?>> routes=new LinkedHashMap<String, Class<?>>();
-
-    public URLConfig() {
-        routes.put(hello, HelloWorldHandler.class);
-        routes.put(favicon_ico, NotFoundHandler.class);
+    static {
+        routes.put(hello, "helloWorldHandler");
+        routes.put(apps, "appCollectionHandler");
     }
 
-    public LinkedHashMap<String, Class<?>> getRoutes() {
-        return this.routes;
+    public static LinkedHashMap<String, String> getRoutes() {
+        return routes;
     }
 }
